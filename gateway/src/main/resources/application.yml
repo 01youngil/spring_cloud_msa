@@ -1,0 +1,41 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: 'http://localhost:3000'
+            allowedMethods: '*'
+            allowedHeaders: '*'
+            allowedCredentials: true
+      routes:
+        - id: member-service
+          predicates:
+            - Path=/member-service/**
+          filters:
+#            첫번째 접두어를 제거후에 member-service로 전달
+            - StripPrefix=1
+          uri: lb://member-service
+
+        - id: ordering-service
+          predicates:
+            - Path=/ordering-service/**
+          filters:
+            #            첫번째 접두어를 제거후에 ordering-service로 전달
+            - StripPrefix=1
+          uri: lb://ordering-service
+
+        - id: product-service
+          predicates:
+            - Path=/product-service/**
+          filters:
+            #            첫번째 접두어를 제거후에 product-service로 전달
+            - StripPrefix=1
+          uri: lb://product-service
