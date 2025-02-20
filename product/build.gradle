@@ -48,6 +48,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	//	재고감소 비동기처리를 위한 kafka관련 의존성추가
+	implementation 'org.springframework.kafka:spring-kafka'
 }
 
 dependencyManagement{

@@ -25,6 +25,13 @@ spring:
   application:
     #    product-service라는 이름으로 eureka에 등록
     name: product-service
+  kafka:
+    kafka-server: localhost:9092
+    consumer:
+#      groupid는 컨슈머 그룹을 식별하는 ID로서, 동일한 그룹ID를 가진 컨슈머들은 메시지를 분담해서 consume.
+      group-id: product-group
+#      가장 처음으로 사용가능한 메시지부터 읽기시작(latest:현시점이후로 들어오는 메시지만 읽음)
+      auto-offset-reset: earliest
 
 eureka:
   client:

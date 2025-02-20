@@ -25,6 +25,8 @@ spring:
   application:
     #    ordering-service라는 이름으로 eureka에 등록
     name: ordering-service
+  kafka:
+    kafka-server: localhost:9092
 
 eureka:
   client:

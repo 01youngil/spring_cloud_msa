@@ -5,11 +5,16 @@ import com.example.ordersystem.product.domain.Product;
 import com.example.ordersystem.product.dto.ProductRegisterDto;
 import com.example.ordersystem.product.dto.ProductResDto;
 import com.example.ordersystem.product.dto.ProductSearchDto;
+import com.example.ordersystem.product.dto.ProductUpdateStockDto;
 import com.example.ordersystem.product.repository.ProductRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -90,6 +95,30 @@ public class ProductService {
         Page<Product> productList = productRepository.findAll(specification, pageable);
         return productList.map(p->p.fromEntity());
     }
+
+    public ProductResDto productDetail(Long id){
+        Product product = productRepository.findById(id).orElseThrow(()->new EntityNotFoundException("product is not found"));
+        return product.fromEntity();
+    }
+
+    public Product updateStockQuantity(ProductUpdateStockDto dto){
+        Product product = productRepository.findById(dto.getProductId()).orElseThrow(() -> new EntityNotFoundException("product x"));
+        product.updateStockQuantity(dto.getProductQuantity());
+        return product;
+    }
+
+    @KafkaListener(topics = "update-stock-topic", groupId = "product-group", containerFactory = "kafkaListener")
+    public void productConsumer(String message){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ProductUpdateStockDto dto = objectMapper.readValue(message, ProductUpdateStockDto.class);
+            this.updateStockQuantity(dto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("컨슈머 메시지 수신 : " + message);
+    }
+
 }
 
 
